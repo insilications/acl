@@ -62,10 +62,10 @@ make %{?_smp_mflags}
 # library must have executable bits set for rpm4 ELF provides to work correctly
 chmod 0755 %{buildroot}/%{_libdir}/libacl.so.*
 
+%find_lang %{name}
+
 %check
 make -k %{?_smp_mflags} tests
-
-%find_lang %{name}
 
 %files
 %{_bindir}/setfacl
