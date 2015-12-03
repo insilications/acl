@@ -1,6 +1,6 @@
 Name:           acl
 Version:        2.2.52
-Release:        20
+Release:        21
 License:        LGPL-2.1+ GPL-2.0+
 Summary:        Utilities for managing POSIX Access Control Lists
 Url:            http://savannah.nongnu.org/projects/acl/
