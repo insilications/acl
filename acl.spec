@@ -1,6 +1,6 @@
 Name:           acl
 Version:        2.2.52
-Release:        25
+Release:        26
 License:        LGPL-2.1+ GPL-2.0+
 Summary:        Utilities for managing POSIX Access Control Lists
 Url:            http://savannah.nongnu.org/projects/acl/
@@ -48,6 +48,11 @@ Utilities for managing POSIX Access Control Lists.
 %patch0 -p1
 
 %build
+export CFLAGS="$CFLAGS -Os -ffunction-sections "
+export FCFLAGS="$CFLAGS -Os -ffunction-sections "
+export FFLAGS="$CFLAGS -Os -ffunction-sections "
+export CXXFLAGS="$CXXFLAGS -Os -ffunction-sections "
+
 %configure \
  --enable-nls \
  --libexecdir=%{_libdir} \
