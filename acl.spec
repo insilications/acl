@@ -4,7 +4,7 @@
 #
 Name     : acl
 Version  : 2.2.52
-Release  : 27
+Release  : 28
 URL      : http://download.savannah.gnu.org/releases/acl/acl-2.2.52.src.tar.gz
 Source0  : http://download.savannah.gnu.org/releases/acl/acl-2.2.52.src.tar.gz
 Summary  : No detailed summary available
