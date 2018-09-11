@@ -1,5 +1,5 @@
 PKG_NAME := acl
-URL := http://download.savannah.gnu.org/releases/acl/acl-2.2.52.src.tar.gz
-
+URL = http://download-mirror.savannah.gnu.org/releases/acl/acl-2.2.53.tar.gz
+ARCHIVES = 
 
 include ../common/Makefile.common

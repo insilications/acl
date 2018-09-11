@@ -1,1 +1,0 @@
-install-lib install-dev DIST_ROOT=%{buildroot} DESTDIR=%{buildroot}
