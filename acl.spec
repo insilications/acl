@@ -6,18 +6,18 @@
 #
 Name     : acl
 Version  : 2.2.53
-Release  : 34
-URL      : http://download-mirror.savannah.gnu.org/releases/acl/acl-2.2.53.tar.gz
-Source0  : http://download-mirror.savannah.gnu.org/releases/acl/acl-2.2.53.tar.gz
-Source99 : http://download-mirror.savannah.gnu.org/releases/acl/acl-2.2.53.tar.gz.sig
+Release  : 35
+URL      : https://download-mirror.savannah.gnu.org/releases/acl/acl-2.2.53.tar.gz
+Source0  : https://download-mirror.savannah.gnu.org/releases/acl/acl-2.2.53.tar.gz
+Source1 : https://download-mirror.savannah.gnu.org/releases/acl/acl-2.2.53.tar.gz.sig
 Summary  : A library for POSIX Access Control Lists
 Group    : Development/Tools
 License  : GPL-2.0+ LGPL-2.1
-Requires: acl-bin
-Requires: acl-lib
-Requires: acl-license
-Requires: acl-locales
-Requires: acl-man
+Requires: acl-bin = %{version}-%{release}
+Requires: acl-lib = %{version}-%{release}
+Requires: acl-license = %{version}-%{release}
+Requires: acl-locales = %{version}-%{release}
+Requires: acl-man = %{version}-%{release}
 BuildRequires : attr-dev
 BuildRequires : attr-dev32
 BuildRequires : gcc-dev32
@@ -33,8 +33,7 @@ Package home: http://savannah.nongnu.org/projects/acl
 %package bin
 Summary: bin components for the acl package.
 Group: Binaries
-Requires: acl-license
-Requires: acl-man
+Requires: acl-license = %{version}-%{release}
 
 %description bin
 bin components for the acl package.
@@ -43,9 +42,10 @@ bin components for the acl package.
 %package dev
 Summary: dev components for the acl package.
 Group: Development
-Requires: acl-lib
-Requires: acl-bin
-Provides: acl-devel
+Requires: acl-lib = %{version}-%{release}
+Requires: acl-bin = %{version}-%{release}
+Provides: acl-devel = %{version}-%{release}
+Requires: acl = %{version}-%{release}
 
 %description dev
 dev components for the acl package.
@@ -54,9 +54,9 @@ dev components for the acl package.
 %package dev32
 Summary: dev32 components for the acl package.
 Group: Default
-Requires: acl-lib32
-Requires: acl-bin
-Requires: acl-dev
+Requires: acl-lib32 = %{version}-%{release}
+Requires: acl-bin = %{version}-%{release}
+Requires: acl-dev = %{version}-%{release}
 
 %description dev32
 dev32 components for the acl package.
@@ -65,7 +65,7 @@ dev32 components for the acl package.
 %package doc
 Summary: doc components for the acl package.
 Group: Documentation
-Requires: acl-man
+Requires: acl-man = %{version}-%{release}
 
 %description doc
 doc components for the acl package.
@@ -74,7 +74,7 @@ doc components for the acl package.
 %package lib
 Summary: lib components for the acl package.
 Group: Libraries
-Requires: acl-license
+Requires: acl-license = %{version}-%{release}
 
 %description lib
 lib components for the acl package.
@@ -83,7 +83,7 @@ lib components for the acl package.
 %package lib32
 Summary: lib32 components for the acl package.
 Group: Default
-Requires: acl-license
+Requires: acl-license = %{version}-%{release}
 
 %description lib32
 lib32 components for the acl package.
@@ -123,8 +123,9 @@ popd
 export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
-export LANG=C
-export SOURCE_DATE_EPOCH=1536636462
+export LANG=C.UTF-8
+export SOURCE_DATE_EPOCH=1568829855
+export GCC_IGNORE_WERROR=1
 export AR=gcc-ar
 export RANLIB=gcc-ranlib
 export NM=gcc-nm
@@ -140,9 +141,10 @@ make  %{?_smp_mflags}
 
 pushd ../build32/
 export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
-export CFLAGS="$CFLAGS -m32"
-export CXXFLAGS="$CXXFLAGS -m32"
-export LDFLAGS="$LDFLAGS -m32"
+export ASFLAGS="${ASFLAGS}${ASFLAGS:+ }--32"
+export CFLAGS="${CFLAGS}${CFLAGS:+ }-m32 -mstackrealign"
+export CXXFLAGS="${CXXFLAGS}${CXXFLAGS:+ }-m32 -mstackrealign"
+export LDFLAGS="${LDFLAGS}${LDFLAGS:+ }-m32 -mstackrealign"
 %configure --disable-static --enable-nls \
 --libexecdir=%{_libdir} \
 --disable-static \
@@ -150,18 +152,18 @@ export LDFLAGS="$LDFLAGS -m32"
 make  %{?_smp_mflags}
 popd
 %check
-export LANG=C
+export LANG=C.UTF-8
 export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 make VERBOSE=1 V=1 %{?_smp_mflags} check
 
 %install
-export SOURCE_DATE_EPOCH=1536636462
+export SOURCE_DATE_EPOCH=1568829855
 rm -rf %{buildroot}
-mkdir -p %{buildroot}/usr/share/doc/acl
-cp doc/COPYING %{buildroot}/usr/share/doc/acl/doc_COPYING
-cp doc/COPYING.LGPL %{buildroot}/usr/share/doc/acl/doc_COPYING.LGPL
+mkdir -p %{buildroot}/usr/share/package-licenses/acl
+cp doc/COPYING %{buildroot}/usr/share/package-licenses/acl/doc_COPYING
+cp doc/COPYING.LGPL %{buildroot}/usr/share/package-licenses/acl/doc_COPYING.LGPL
 pushd ../build32/
 %make_install32
 if [ -d  %{buildroot}/usr/lib32/pkgconfig ]
@@ -237,10 +239,7 @@ popd
 
 %files doc
 %defattr(0644,root,root,0755)
-%doc /usr/share/doc/acl/CHANGES
-%doc /usr/share/doc/acl/PORTING
-%doc /usr/share/doc/acl/extensions.txt
-%doc /usr/share/doc/acl/libacl.txt
+%doc /usr/share/doc/acl/*
 
 %files lib
 %defattr(-,root,root,-)
@@ -253,14 +252,12 @@ popd
 /usr/lib32/libacl.so.1.1.2253
 
 %files license
-%defattr(-,root,root,-)
-/usr/share/doc/acl/COPYING
-/usr/share/doc/acl/COPYING.LGPL
-/usr/share/doc/acl/doc_COPYING
-/usr/share/doc/acl/doc_COPYING.LGPL
+%defattr(0644,root,root,0755)
+/usr/share/package-licenses/acl/doc_COPYING
+/usr/share/package-licenses/acl/doc_COPYING.LGPL
 
 %files man
-%defattr(-,root,root,-)
+%defattr(0644,root,root,0755)
 /usr/share/man/man1/chacl.1
 /usr/share/man/man1/getfacl.1
 /usr/share/man/man1/setfacl.1
