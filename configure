@@ -1,5 +1,1 @@
- --enable-nls 
- --libexecdir=%{_libdir} 
- --disable-static 
- --enable-shared
-
+--enable-nls --libexecdir=%{_libdir} --enable-static --enable-shared

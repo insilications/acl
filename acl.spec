@@ -4,27 +4,32 @@
 #
 # Source0 file verified with key 0x41633B9FE837F581 (vapier@gentoo.org)
 #
+%define keepstatic 1
 Name     : acl
 Version  : 2.2.53
-Release  : 35
+Release  : 36
 URL      : https://download-mirror.savannah.gnu.org/releases/acl/acl-2.2.53.tar.gz
 Source0  : https://download-mirror.savannah.gnu.org/releases/acl/acl-2.2.53.tar.gz
-Source1 : https://download-mirror.savannah.gnu.org/releases/acl/acl-2.2.53.tar.gz.sig
+Source1  : https://download-mirror.savannah.gnu.org/releases/acl/acl-2.2.53.tar.gz.sig
 Summary  : A library for POSIX Access Control Lists
 Group    : Development/Tools
-License  : GPL-2.0+ LGPL-2.1
+License  : GPL-2.0+
 Requires: acl-bin = %{version}-%{release}
 Requires: acl-lib = %{version}-%{release}
-Requires: acl-license = %{version}-%{release}
 Requires: acl-locales = %{version}-%{release}
 Requires: acl-man = %{version}-%{release}
 BuildRequires : attr-dev
 BuildRequires : attr-dev32
+BuildRequires : buildreq-configure
+BuildRequires : findutils
 BuildRequires : gcc-dev32
 BuildRequires : gcc-libgcc32
 BuildRequires : gcc-libstdc++32
 BuildRequires : glibc-dev32
 BuildRequires : glibc-libc32
+# Suppress stripping binaries
+%define __strip /bin/true
+%define debug_package %{nil}
 
 %description
 __________________________________
@@ -33,7 +38,6 @@ Package home: http://savannah.nongnu.org/projects/acl
 %package bin
 Summary: bin components for the acl package.
 Group: Binaries
-Requires: acl-license = %{version}-%{release}
 
 %description bin
 bin components for the acl package.
@@ -74,7 +78,6 @@ doc components for the acl package.
 %package lib
 Summary: lib components for the acl package.
 Group: Libraries
-Requires: acl-license = %{version}-%{release}
 
 %description lib
 lib components for the acl package.
@@ -83,18 +86,9 @@ lib components for the acl package.
 %package lib32
 Summary: lib32 components for the acl package.
 Group: Default
-Requires: acl-license = %{version}-%{release}
 
 %description lib32
 lib32 components for the acl package.
-
-
-%package license
-Summary: license components for the acl package.
-Group: Default
-
-%description license
-license components for the acl package.
 
 
 %package locales
@@ -113,57 +107,109 @@ Group: Default
 man components for the acl package.
 
 
+%package staticdev
+Summary: staticdev components for the acl package.
+Group: Default
+Requires: acl-dev = %{version}-%{release}
+
+%description staticdev
+staticdev components for the acl package.
+
+
+%package staticdev32
+Summary: staticdev32 components for the acl package.
+Group: Default
+Requires: acl-dev = %{version}-%{release}
+
+%description staticdev32
+staticdev32 components for the acl package.
+
+
 %prep
 %setup -q -n acl-2.2.53
+cd %{_builddir}/acl-2.2.53
 pushd ..
 cp -a acl-2.2.53 build32
 popd
 
 %build
-export http_proxy=http://127.0.0.1:9/
-export https_proxy=http://127.0.0.1:9/
-export no_proxy=localhost,127.0.0.1,0.0.0.0
+unset http_proxy
+unset https_proxy
+unset no_proxy
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1568829855
+export SOURCE_DATE_EPOCH=1597924629
 export GCC_IGNORE_WERROR=1
 export AR=gcc-ar
 export RANLIB=gcc-ranlib
 export NM=gcc-nm
-export CFLAGS="$CFLAGS -O3 -Os -fdata-sections -ffat-lto-objects -ffunction-sections -flto=4 -fno-semantic-interposition "
-export FCFLAGS="$CFLAGS -O3 -Os -fdata-sections -ffat-lto-objects -ffunction-sections -flto=4 -fno-semantic-interposition "
-export FFLAGS="$CFLAGS -O3 -Os -fdata-sections -ffat-lto-objects -ffunction-sections -flto=4 -fno-semantic-interposition "
-export CXXFLAGS="$CXXFLAGS -O3 -Os -fdata-sections -ffat-lto-objects -ffunction-sections -flto=4 -fno-semantic-interposition "
-%configure --disable-static --enable-nls \
---libexecdir=%{_libdir} \
---disable-static \
---enable-shared
+## altflags_pgo content
+## pgo generate
+export PGO_GEN="-fprofile-generate=/var/tmp/pgo -fprofile-dir=/var/tmp/pgo -fprofile-abs-path -fprofile-update=atomic -fprofile-arcs -ftest-coverage --coverage -fprofile-partial-training"
+export CFLAGS_GENERATE="-O3 -march=native -mtune=native -falign-functions=32 -flimit-function-alignment -fno-semantic-interposition -fno-stack-protector -fuse-ld=bfd -fuse-linker-plugin -malign-data=cacheline -mtls-dialect=gnu2 -fno-math-errno -fno-trapping-math  -pipe -fPIC -fdata-sections -ffat-lto-objects -ffunction-sections $PGO_GEN"
+export FCFLAGS_GENERATE="-O3 -march=native -mtune=native -falign-functions=32 -flimit-function-alignment -fno-semantic-interposition -fno-stack-protector -fuse-ld=bfd -fuse-linker-plugin -malign-data=cacheline -mtls-dialect=gnu2 -fno-math-errno -fno-trapping-math  -pipe -fPIC -fdata-sections -ffat-lto-objects -ffunction-sections $PGO_GEN"
+export FFLAGS_GENERATE="-O3 -march=native -mtune=native -falign-functions=32 -flimit-function-alignment -fno-semantic-interposition -fno-stack-protector -fuse-ld=bfd -fuse-linker-plugin -malign-data=cacheline -mtls-dialect=gnu2 -fno-math-errno -fno-trapping-math  -pipe -fPIC -fdata-sections -ffat-lto-objects -ffunction-sections $PGO_GEN"
+export CXXFLAGS_GENERATE="-O3 -march=native -mtune=native -falign-functions=32 -flimit-function-alignment -fno-semantic-interposition -fno-stack-protector -fuse-ld=bfd -fuse-linker-plugin -malign-data=cacheline -mtls-dialect=gnu2 -fno-math-errno -fno-trapping-math -fvisibility-inlines-hidden  -pipe -fPIC -fdata-sections -ffat-lto-objects -ffunction-sections $PGO_GEN"
+export LDFLAGS_GENERATE="-O3 -march=native -mtune=native -falign-functions=32 -flimit-function-alignment -fno-semantic-interposition -fno-stack-protector -fuse-ld=bfd -fuse-linker-plugin -malign-data=cacheline -mtls-dialect=gnu2 -fno-math-errno -fno-trapping-math  -pipe -fPIC -fdata-sections -ffat-lto-objects -ffunction-sections $PGO_GEN"
+## pgo use
+## -ffat-lto-objects -fno-PIE -fno-PIE -m64 -no-pie -fpic -fvisibility=hidden -flto-partition=none
+## gcc: -feliminate-unused-debug-types -fipa-pta -flto=16 -Wno-error -Wp,-D_REENTRANT -fno-common
+export PGO_USE="-fprofile-use=/var/tmp/pgo -fprofile-dir=/var/tmp/pgo -fprofile-abs-path -fprofile-correction -fprofile-partial-training"
+export CFLAGS_USE="-g -O3 -march=native -mtune=native -fgraphite-identity -Wall -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,--hash-style=gnu -Wl,-O2 -Wl,-z,now -Wl,-z,relro -falign-functions=32 -flimit-function-alignment -fasynchronous-unwind-tables -fdevirtualize-at-ltrans -floop-nest-optimize -fno-math-errno -fno-semantic-interposition -fno-stack-protector -fno-trapping-math -ftree-loop-distribute-patterns -ftree-loop-vectorize -ftree-vectorize -funroll-loops -fuse-ld=bfd -fuse-linker-plugin -malign-data=cacheline -feliminate-unused-debug-types -fipa-pta -flto=16 -fno-plt -mtls-dialect=gnu2 -Wl,-sort-common -Wno-error -Wp,-D_REENTRANT  -pipe -fPIC -fdata-sections -ffat-lto-objects -ffunction-sections $PGO_USE"
+export FCFLAGS_USE="-g -O3 -march=native -mtune=native -fgraphite-identity -Wall -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,--hash-style=gnu -Wl,-O2 -Wl,-z,now -Wl,-z,relro -falign-functions=32 -flimit-function-alignment -fasynchronous-unwind-tables -fdevirtualize-at-ltrans -floop-nest-optimize -fno-math-errno -fno-semantic-interposition -fno-stack-protector -fno-trapping-math -ftree-loop-distribute-patterns -ftree-loop-vectorize -ftree-vectorize -funroll-loops -fuse-ld=bfd -fuse-linker-plugin -malign-data=cacheline -feliminate-unused-debug-types -fipa-pta -flto=16 -fno-plt -mtls-dialect=gnu2 -Wl,-sort-common -Wno-error -Wp,-D_REENTRANT  -pipe -fPIC -fdata-sections -ffat-lto-objects -ffunction-sections $PGO_USE"
+export FFLAGS_USE="-g -O3 -march=native -mtune=native -fgraphite-identity -Wall -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,--hash-style=gnu -Wl,-O2 -Wl,-z,now -Wl,-z,relro -falign-functions=32 -flimit-function-alignment -fasynchronous-unwind-tables -fdevirtualize-at-ltrans -floop-nest-optimize -fno-math-errno -fno-semantic-interposition -fno-stack-protector -fno-trapping-math -ftree-loop-distribute-patterns -ftree-loop-vectorize -ftree-vectorize -funroll-loops -fuse-ld=bfd -fuse-linker-plugin -malign-data=cacheline -feliminate-unused-debug-types -fipa-pta -flto=16 -fno-plt -mtls-dialect=gnu2 -Wl,-sort-common -Wno-error -Wp,-D_REENTRANT  -pipe -fPIC -fdata-sections -ffat-lto-objects -ffunction-sections $PGO_USE"
+export CXXFLAGS_USE="-g -O3 -march=native -mtune=native -fgraphite-identity -Wall -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,--hash-style=gnu -Wl,-O2 -Wl,-z,now -Wl,-z,relro -falign-functions=32 -flimit-function-alignment -fasynchronous-unwind-tables -fdevirtualize-at-ltrans -floop-nest-optimize -fno-math-errno -fno-semantic-interposition -fno-stack-protector -fno-trapping-math -ftree-loop-distribute-patterns -ftree-loop-vectorize -ftree-vectorize -funroll-loops -fuse-ld=bfd -fuse-linker-plugin -malign-data=cacheline -feliminate-unused-debug-types -fipa-pta -flto=16 -fno-plt -mtls-dialect=gnu2 -Wl,-sort-common -Wno-error -Wp,-D_REENTRANT -fvisibility-inlines-hidden  -pipe -fPIC -fdata-sections -ffat-lto-objects -ffunction-sections $PGO_USE"
+export LDFLAGS_USE="-g -O3 -march=native -mtune=native -fgraphite-identity -Wall -Wl,--as-needed -Wl,--build-id=sha1 -Wl,--enable-new-dtags -Wl,--hash-style=gnu -Wl,-O2 -Wl,-z,now -Wl,-z,relro -falign-functions=32 -flimit-function-alignment -fasynchronous-unwind-tables -fdevirtualize-at-ltrans -floop-nest-optimize -fno-math-errno -fno-semantic-interposition -fno-stack-protector -fno-trapping-math -ftree-loop-distribute-patterns -ftree-loop-vectorize -ftree-vectorize -funroll-loops -fuse-ld=bfd -fuse-linker-plugin -malign-data=cacheline -feliminate-unused-debug-types -fipa-pta -flto=16 -fno-plt -mtls-dialect=gnu2 -Wl,-sort-common -Wno-error -Wp,-D_REENTRANT  -pipe -fPIC -fdata-sections -ffat-lto-objects -ffunction-sections $PGO_USE"
+export AR=gcc-ar
+export RANLIB=gcc-ranlib
+export NM=gcc-nm
+#export CCACHE_DISABLE=1
+## altflags_pgo end
+export CFLAGS="${CFLAGS_GENERATE}"
+export CXXFLAGS="${CXXFLAGS_GENERATE}"
+export FFLAGS="${FFLAGS_GENERATE}"
+export FCFLAGS="${FCFLAGS_GENERATE}"
+export LDFLAGS="${LDFLAGS_GENERATE}"
+ %configure --enable-nls --libexecdir=%{_libdir} --enable-static --enable-shared
+make  %{?_smp_mflags}
+
+make VERBOSE=1 V=1 %{?_smp_mflags} check || :
+make clean
+export CFLAGS="${CFLAGS_USE}"
+export CXXFLAGS="${CXXFLAGS_USE}"
+export FFLAGS="${FFLAGS_USE}"
+export FCFLAGS="${FCFLAGS_USE}"
+export LDFLAGS="${LDFLAGS_USE}"
+%configure --enable-nls --libexecdir=%{_libdir} --enable-static --enable-shared
 make  %{?_smp_mflags}
 
 pushd ../build32/
+export CFLAGS="-g -O3 -fuse-linker-plugin -pipe"
+export CXXFLAGS="-g -O3 -fuse-linker-plugin -fvisibility-inlines-hidden -pipe"
+export LDFLAGS="-g -O3 -fuse-linker-plugin -pipe"
+export AR=gcc-ar
+export RANLIB=gcc-ranlib
+export NM=gcc-nm
 export PKG_CONFIG_PATH="/usr/lib32/pkgconfig"
 export ASFLAGS="${ASFLAGS}${ASFLAGS:+ }--32"
 export CFLAGS="${CFLAGS}${CFLAGS:+ }-m32 -mstackrealign"
 export CXXFLAGS="${CXXFLAGS}${CXXFLAGS:+ }-m32 -mstackrealign"
 export LDFLAGS="${LDFLAGS}${LDFLAGS:+ }-m32 -mstackrealign"
-%configure --disable-static --enable-nls \
---libexecdir=%{_libdir} \
---disable-static \
---enable-shared   --libdir=/usr/lib32 --build=i686-generic-linux-gnu --host=i686-generic-linux-gnu --target=i686-clr-linux-gnu
+%configure --enable-nls --libexecdir=%{_libdir} --enable-static --enable-shared  --libdir=/usr/lib32 --build=i686-generic-linux-gnu --host=i686-generic-linux-gnu --target=i686-clr-linux-gnu
 make  %{?_smp_mflags}
 popd
+
 %check
 export LANG=C.UTF-8
-export http_proxy=http://127.0.0.1:9/
-export https_proxy=http://127.0.0.1:9/
-export no_proxy=localhost,127.0.0.1,0.0.0.0
-make VERBOSE=1 V=1 %{?_smp_mflags} check
+unset http_proxy
+unset https_proxy
+unset no_proxy
+make %{?_smp_mflags} check || :
+cd ../build32;
+make %{?_smp_mflags} check || : || :
 
 %install
-export SOURCE_DATE_EPOCH=1568829855
+export SOURCE_DATE_EPOCH=1597924629
 rm -rf %{buildroot}
-mkdir -p %{buildroot}/usr/share/package-licenses/acl
-cp doc/COPYING %{buildroot}/usr/share/package-licenses/acl/doc_COPYING
-cp doc/COPYING.LGPL %{buildroot}/usr/share/package-licenses/acl/doc_COPYING.LGPL
 pushd ../build32/
 %make_install32
 if [ -d  %{buildroot}/usr/lib32/pkgconfig ]
@@ -251,17 +297,20 @@ popd
 /usr/lib32/libacl.so.1
 /usr/lib32/libacl.so.1.1.2253
 
-%files license
-%defattr(0644,root,root,0755)
-/usr/share/package-licenses/acl/doc_COPYING
-/usr/share/package-licenses/acl/doc_COPYING.LGPL
-
 %files man
 %defattr(0644,root,root,0755)
 /usr/share/man/man1/chacl.1
 /usr/share/man/man1/getfacl.1
 /usr/share/man/man1/setfacl.1
 /usr/share/man/man5/acl.5
+
+%files staticdev
+%defattr(-,root,root,-)
+/usr/lib64/libacl.a
+
+%files staticdev32
+%defattr(-,root,root,-)
+/usr/lib32/libacl.a
 
 %files locales -f acl.lang
 %defattr(-,root,root,-)
