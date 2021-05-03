@@ -17,7 +17,6 @@ file-dev
 findutils
 flex
 gcc
-gcc-abi
 gcc-dev
 gcc-dev32
 gcc-doc
@@ -27,7 +26,6 @@ gcc-libstdc++32
 gcc-libubsan
 gcc-locale
 gettext-bin
-glibc-abi
 glibc-bench
 glibc-bin
 glibc-dev
